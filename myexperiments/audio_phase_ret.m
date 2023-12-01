@@ -11,12 +11,14 @@ opts.tol = 1e-6;                % The tolerance - make this smaller for more acc
 opts.verbose = 0;               % Print out lots of information as the solver runs (set this to 1 or 0 for less output)
 opts.isComplex = false;
 opts.maxIters = 1000; 
-A_spar = load('A_sparse.mat'); 
+A_spar = load('A_sparse_8000.mat'); 
 A_spar = A_spar.A_spar; 
 [m, n] = size(A_spar); 
 %% get audio filename 
 % i = 1; 
-parfor i = 1:size(t,1)
+N = size(t,1); 
+% N = 1; 
+parfor i = 1:N
     %% get audio names and filenames 
     c = strsplit(t(i,4).Var4{1}, ','); 
     filename = c{1}; 
@@ -31,12 +33,13 @@ parfor i = 1:size(t,1)
     b = abs(A_spar*x_pad);
     
     %% Run the Phase retrieval Algorithm
-    % fprintf('Running %s algorithm\n',opts.algorithm);
+    fprintf('Running %s algorithm\n',i);
     [x, outs] = solvePhaseRetrieval(A_spar, [], b, n, opts);
     
     %% Determine the optimal phase rotation so that the recovered solution
     %  matches the true solution as well as possible.  
-    alpha = (x'*x_pad)/(x'*x);
+    % alpha = (x'*x_pad)/(x'*x);
+    alpha = (x'*x_pad)/abs(x'*x_pad); 
     x = alpha * x;
     
     %% save to file 
